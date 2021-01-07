@@ -20,11 +20,16 @@ describe('lab-15-auth routes', () => {
       .send({ 
         email: 'test@test.com', 
 <<<<<<< HEAD
+<<<<<<< HEAD
         passwordHash: 'password' 
 =======
         password: 'password',
         profilePhotoURL: 'profile.jpg'
 >>>>>>> 1d684b6dfffd3bc4cc778ab1b457eb9b1c35c003
+=======
+        password: 'password',
+        profilePhotoURL: 'profile.jpg'
+>>>>>>> b51365e52f8ab9f5115500d7a191067d85f0b7fb
       })
       .then(res => {
         expect(res.body).toEqual({
