@@ -10,17 +10,23 @@ describe('lab-15-auth routes', () => {
     return pool.query(fs.readFileSync('./sql/setup.sql', 'utf-8'));
   });
 
+  afterAll(() => {
+    pool.end();
+  });
+
   it('allows the user to signup via POST', async() => {
     return request(app)
       .post('/api/v1/auth/signup')
       .send({ 
         email: 'test@test.com', 
-        password: 'password' 
+        password: 'password',
+        profilePhotoURL: 'profile.jpg'
       })
       .then(res => {
         expect(res.body).toEqual({
           id: expect.any(String),
-          email: 'test@test.com'
+          email: 'test@test.com',
+          profilePhotoURL: 'profile.jpg'
         });
       });
   });
@@ -28,7 +34,8 @@ describe('lab-15-auth routes', () => {
   it('allows the user to login via post', async() => {
     const user = await UserService.create({
       email: 'test@test.com',
-      password: 'password'
+      password: 'password',
+      profilePhotoURL: 'profile.jpg'
     });
 
     const res = await request(app)
@@ -40,7 +47,8 @@ describe('lab-15-auth routes', () => {
 
     expect(res.body).toEqual({
       id: user.id,
-      email: 'test@test.com'
+      email: 'test@test.com',
+      profilePhotoURL: 'profile.jpg'
     });
   });
 
@@ -48,7 +56,8 @@ describe('lab-15-auth routes', () => {
     const agent = request.agent(app);
     const user = await UserService.create({
       email: 'test@test.com',
-      password: 'password'
+      password: 'password',
+      profilePhotoURL: 'profile.jpg'
     });
 
     await agent
@@ -63,7 +72,8 @@ describe('lab-15-auth routes', () => {
 
     expect(res.body).toEqual({
       id: user.id,
-      email: 'test@test.com'
+      email: 'test@test.com',
+      profilePhotoURL: 'profile.jpg'
     });
   });
 });
