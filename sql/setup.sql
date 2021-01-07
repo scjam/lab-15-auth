@@ -1,4 +1,6 @@
-DROP TABLE IF EXISTS users;
+DROP TABLE IF EXISTS users CASCADE;
+DROP TABLE IF EXISTS posts CASCADE;
+DROP TABLE IF EXISTS comments;
 
 CREATE TABLE users(
     id BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
@@ -6,3 +8,10 @@ CREATE TABLE users(
     password_hash TEXT NOT NULL,
     profile_photo_url TEXT
 );
+
+CREATE TABLE comments(
+    id BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+    comment TEXT NOT NULL,
+    user_id BIGINT REFERENCES users(id) AS comment_by,
+    post_id BIGINT REFERENCES posts(id) AS post
+)
