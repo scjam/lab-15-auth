@@ -3,6 +3,7 @@ const pool = require('../lib/utils/pool');
 const request = require('supertest');
 const app = require('../lib/app');
 const UserService = require('../lib/services/UserService');
+const { globalAgent } = require('https');
 
 describe('lab-15-auth routes', () => {
   beforeEach(() => {
@@ -39,7 +40,30 @@ describe('lab-15-auth routes', () => {
 
     expect(res.body).toEqual({
       id: user.id,
+      email: 'test@test.com'
+    });
+  });
+
+  it('verifies a user is logged in', async() => {
+    const agent = request.agent(app);
+    const user = await UserService.create({
       email: 'test@test.com',
+      password: 'password'
+    });
+
+    await agent
+      .post('/api/v1/auth/login')
+      .send({
+        email: 'test@test.com',
+        password: 'password'
+      });
+
+    const res = await agent
+      .get('/api/v1/auth/verify');
+
+    expect(res.body).toEqual({
+      id: user.id,
+      email: 'test@test.com'
     });
   });
 });
