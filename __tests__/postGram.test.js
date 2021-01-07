@@ -4,7 +4,7 @@ const request = require('supertest');
 const app = require('../lib/app');
 const UserService = require('../lib/services/UserService');
 
-describe('lab-15-auth routes', () => {
+describe('lab-15-post gram routes', () => {
   beforeEach(() => {
     return pool.query(fs.readFileSync('./sql/setup.sql', 'utf-8'));
   });
@@ -47,5 +47,45 @@ describe('lab-15-auth routes', () => {
          ],
     
     });
+  });
+
+
+  it('gets all PostGrams via GET', async() => {
+    const agent = request.agent(app);
+    const user = await agent
+      .post('/api/v1/auth/signup')
+      .send({
+        email: 'test@test.com',
+        password: 'password',
+        profilePhotoURL: 'profile.jpg'
+      });
+    const gram = await agent
+      .post('/api/v1/post_grams')
+      .send({ 
+        userId: user.id, 
+        photoURL: 'photo.jpg', 
+        tags:
+         [ 
+           'tag',
+           'tagged',
+           'tagger'
+         ],
+      });
+
+    const res = await agent
+      .get('/api/v1/post_grams');
+      
+    expect(res.body).toEqual([{
+      id: expect.any(String),
+      userId: user.body.id, 
+      photoURL: 'photo.jpg', 
+      tags:
+         [ 
+           'tag',
+           'tagged',
+           'tagger'
+         ],
+    
+    }]);
   });
 });
