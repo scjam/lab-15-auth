@@ -12,6 +12,6 @@ CREATE TABLE users(
 CREATE TABLE comments(
     id BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
     comment TEXT NOT NULL,
-    user_id BIGINT REFERENCES users(id) AS comment_by,
-    post_id BIGINT REFERENCES posts(id) AS post
+    comment_by BIGINT REFERENCES users(id),
+    post BIGINT REFERENCES posts(id)
 )
