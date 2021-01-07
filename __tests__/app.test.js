@@ -15,7 +15,7 @@ describe('lab-15-auth routes', () => {
       .post('/api/v1/auth/signup')
       .send({ 
         email: 'test@test.com', 
-        password: 'password' 
+        passwordHash: 'password' 
       })
       .then(res => {
         expect(res.body).toEqual({
