@@ -1,5 +1,6 @@
 DROP TABLE IF EXISTS users CASCADE;
-DROP TABLE IF EXISTS post_grams;
+DROP TABLE IF EXISTS post_grams CASCADE;
+DROP TABLE IF EXISTS comments;
 
 CREATE TABLE users(
     id BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
@@ -14,4 +15,11 @@ CREATE TABLE post_grams(
    photo_url TEXT NOT NULL,
    tags TEXT[]
 
+);
+
+CREATE TABLE comments(
+    id BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+    comment TEXT NOT NULL,
+    comment_by BIGINT REFERENCES users(id),
+    post BIGINT REFERENCES post_grams(id)
 );
