@@ -26,7 +26,8 @@ describe('lab-15-post gram routes', () => {
       .post('/api/v1/post_grams')
       .send({ 
         userId: user.id, 
-        photoURL: 'photo.jpg', 
+        photoURL: 'photo.jpg',
+        caption: 'caption',
         tags:
          [ 
            'tag',
@@ -38,7 +39,8 @@ describe('lab-15-post gram routes', () => {
     expect(res.body).toEqual({
       id: expect.any(String),
       userId: user.body.id, 
-      photoURL: 'photo.jpg', 
+      photoURL: 'photo.jpg',
+      caption: 'caption',
       tags:
          [ 
            'tag',
@@ -63,7 +65,8 @@ describe('lab-15-post gram routes', () => {
       .post('/api/v1/post_grams')
       .send({ 
         userId: user.id, 
-        photoURL: 'photo.jpg', 
+        photoURL: 'photo.jpg',
+        caption: 'caption',
         tags:
          [ 
            'tag',
@@ -78,14 +81,14 @@ describe('lab-15-post gram routes', () => {
     expect(res.body).toEqual([{
       id: expect.any(String),
       userId: user.body.id, 
-      photoURL: 'photo.jpg', 
+      photoURL: 'photo.jpg',
+      caption: 'caption',
       tags:
          [ 
            'tag',
            'tagged',
            'tagger'
-         ],
-    
+         ]
     }]);
   });
 
@@ -103,16 +106,16 @@ describe('lab-15-post gram routes', () => {
       .post('/api/v1/post_grams')
       .send({ 
         userId: user.id, 
-        photoURL: 'photo.jpg', 
+        photoURL: 'photo.jpg',
+        caption: 'caption',
         tags:
          [ 
            'tag',
            'tagged',
            'tagger'
-         ],
+         ]
       });
 
-    console.log(gram.body);
     const res = await agent
       .get(`/api/v1/post_grams/${gram.body.id}`);
       
@@ -120,14 +123,14 @@ describe('lab-15-post gram routes', () => {
       id: expect.any(String),
       comments: expect.anything(),
       userId: user.body.id, 
-      photoURL: 'photo.jpg', 
+      photoURL: 'photo.jpg',
+      caption: 'caption', 
       tags:
          [ 
            'tag',
            'tagged',
            'tagger'
-         ],
-    
+         ]
     });
   });
 });

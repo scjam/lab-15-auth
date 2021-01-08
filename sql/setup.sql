@@ -13,8 +13,8 @@ CREATE TABLE post_grams(
    id BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
    user_id BIGINT REFERENCES users(id),
    photo_url TEXT NOT NULL,
+   caption TEXT,
    tags TEXT[]
-
 );
 
 CREATE TABLE comments(
