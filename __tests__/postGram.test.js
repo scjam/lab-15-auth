@@ -222,4 +222,56 @@ describe('lab-15-post gram routes', () => {
          ]
     });
   });
+
+  it('gets top 10 commented on PostGrams via GET', async() => {
+    const agent = request.agent(app);
+    const user = await agent
+      .post('/api/v1/auth/signup')
+      .send({
+        email: 'test@test.com',
+        password: 'password',
+        profilePhotoURL: 'profile.jpg'
+      });
+    const grams = await agent
+      .post('/api/v1/post_grams')
+      .send(
+        { 
+          userId: user.id, 
+          photoURL: 'photo1.jpg',
+          caption: 'caption',
+          tags:
+          [ 
+            'tag',
+            'tagged',
+            'tagger'
+          ],
+        });
+    
+    console.log(grams.body);
+
+    const comments = await agent
+      .post('/api/v1/comments')
+      .send(
+        {
+          comment: 'hello world',
+          commentBy: user.id,
+          post: grams.body.id
+        });
+
+    const res = await agent
+      .get('/api/v1/post_grams');
+      
+    expect(res.body).toEqual([{
+      id: expect.any(String),
+      userId: user.body.id, 
+      photoURL: 'photo1.jpg',
+      caption: 'caption',
+      tags:
+         [ 
+           'tag',
+           'tagged',
+           'tagger'
+         ]
+    }]);
+  });
 });
