@@ -3,7 +3,6 @@ const pool = require('../lib/utils/pool');
 const request = require('supertest');
 const app = require('../lib/app');
 const UserService = require('../lib/services/UserService');
-const { globalAgent } = require('https');
 
 describe('lab-15-auth routes', () => {
   beforeEach(() => {

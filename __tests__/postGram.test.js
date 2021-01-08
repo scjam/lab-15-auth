@@ -2,7 +2,6 @@ const fs = require('fs');
 const pool = require('../lib/utils/pool');
 const request = require('supertest');
 const app = require('../lib/app');
-const UserService = require('../lib/services/UserService');
 
 describe('lab-15-post gram routes', () => {
   beforeEach(() => {
@@ -46,11 +45,9 @@ describe('lab-15-post gram routes', () => {
            'tag',
            'tagged',
            'tagger'
-         ],
-    
+         ]
     });
   });
-
 
   it('gets all PostGrams via GET', async() => {
     const agent = request.agent(app);
@@ -246,8 +243,6 @@ describe('lab-15-post gram routes', () => {
             'tagger'
           ],
         });
-    
-    console.log(grams.body);
 
     const comments = await agent
       .post('/api/v1/comments')
