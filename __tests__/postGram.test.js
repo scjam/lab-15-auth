@@ -181,4 +181,45 @@ describe('lab-15-post gram routes', () => {
          ]
     });
   });
+
+  it('deletes a post, only allowing you to do so if you have authorization', async() => {
+    const agent = request.agent(app);
+    const user = await agent
+      .post('/api/v1/auth/signup')
+      .send({
+        email: 'test@test.com',
+        password: 'password',
+        profilePhotoURL: 'profile.jpg'
+      });
+
+    const gram = await agent
+      .post('/api/v1/post_grams')
+      .send({ 
+        userId: user.id, 
+        photoURL: 'photo.jpg',
+        caption: 'caption',
+        tags:
+         [ 
+           'tag',
+           'tagged',
+           'tagger'
+         ]
+      });
+
+    const res = await agent
+      .delete(`/api/v1/post_grams/${gram.body.id}`);
+      
+    expect(res.body).toEqual({
+      id: expect.any(String),
+      userId: user.body.id, 
+      photoURL: 'photo.jpg',
+      caption: 'caption', 
+      tags:
+         [
+           'tag',
+           'tagged',
+           'tagger'
+         ]
+    });
+  });
 });
