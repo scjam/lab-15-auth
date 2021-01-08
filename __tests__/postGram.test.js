@@ -172,7 +172,7 @@ describe('lab-15-post gram routes', () => {
       comments: expect.anything(),
       userId: user.body.id, 
       photoURL: 'photo.jpg',
-      caption: 'caption', 
+      caption: 'this is my new caption', 
       tags:
          [
            'tag',
