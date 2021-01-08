@@ -2,7 +2,6 @@ const fs = require('fs');
 const pool = require('../lib/utils/pool');
 const request = require('supertest');
 const app = require('../lib/app');
-const UserService = require('../lib/services/UserService');
 
 describe('lab-15-post gram routes', () => {
   beforeEach(() => {
@@ -26,7 +25,8 @@ describe('lab-15-post gram routes', () => {
       .post('/api/v1/post_grams')
       .send({ 
         userId: user.id, 
-        photoURL: 'photo.jpg', 
+        photoURL: 'photo.jpg',
+        caption: 'caption',
         tags:
          [ 
            'tag',
@@ -38,17 +38,16 @@ describe('lab-15-post gram routes', () => {
     expect(res.body).toEqual({
       id: expect.any(String),
       userId: user.body.id, 
-      photoURL: 'photo.jpg', 
+      photoURL: 'photo.jpg',
+      caption: 'caption',
       tags:
          [ 
            'tag',
            'tagged',
            'tagger'
-         ],
-    
+         ]
     });
   });
-
 
   it('gets all PostGrams via GET', async() => {
     const agent = request.agent(app);
@@ -63,7 +62,8 @@ describe('lab-15-post gram routes', () => {
       .post('/api/v1/post_grams')
       .send({ 
         userId: user.id, 
-        photoURL: 'photo.jpg', 
+        photoURL: 'photo.jpg',
+        caption: 'caption',
         tags:
          [ 
            'tag',
@@ -78,14 +78,14 @@ describe('lab-15-post gram routes', () => {
     expect(res.body).toEqual([{
       id: expect.any(String),
       userId: user.body.id, 
-      photoURL: 'photo.jpg', 
+      photoURL: 'photo.jpg',
+      caption: 'caption',
       tags:
          [ 
            'tag',
            'tagged',
            'tagger'
-         ],
-    
+         ]
     }]);
   });
 
@@ -103,16 +103,16 @@ describe('lab-15-post gram routes', () => {
       .post('/api/v1/post_grams')
       .send({ 
         userId: user.id, 
-        photoURL: 'photo.jpg', 
+        photoURL: 'photo.jpg',
+        caption: 'caption',
         tags:
          [ 
            'tag',
            'tagged',
            'tagger'
-         ],
+         ]
       });
 
-    console.log(gram.body);
     const res = await agent
       .get(`/api/v1/post_grams/${gram.body.id}`);
       
@@ -120,14 +120,153 @@ describe('lab-15-post gram routes', () => {
       id: expect.any(String),
       comments: expect.anything(),
       userId: user.body.id, 
-      photoURL: 'photo.jpg', 
+      photoURL: 'photo.jpg',
+      caption: 'caption', 
       tags:
          [ 
            'tag',
            'tagged',
            'tagger'
-         ],
-    
+         ]
     });
+  });
+
+  it('updates a posts caption, only allowing you to do so if you have authorization', async() => {
+    const agent = request.agent(app);
+    const user = await agent
+      .post('/api/v1/auth/signup')
+      .send({
+        email: 'test@test.com',
+        password: 'password',
+        profilePhotoURL: 'profile.jpg'
+      });
+
+    let gram = await agent
+      .post('/api/v1/post_grams')
+      .send({ 
+        userId: user.id, 
+        photoURL: 'photo.jpg',
+        caption: 'caption',
+        tags:
+         [ 
+           'tag',
+           'tagged',
+           'tagger'
+         ]
+      });
+
+    gram = await agent
+      .patch(`/api/v1/post_grams/${gram.body.id}`)
+      .send({
+        caption: 'this is my new caption'
+      });
+
+    const res = await agent
+      .get(`/api/v1/post_grams/${gram.body.id}`);
+      
+    expect(res.body).toEqual({
+      id: expect.any(String),
+      comments: expect.anything(),
+      userId: user.body.id, 
+      photoURL: 'photo.jpg',
+      caption: 'this is my new caption', 
+      tags:
+         [
+           'tag',
+           'tagged',
+           'tagger'
+         ]
+    });
+  });
+
+  it('deletes a post, only allowing you to do so if you have authorization', async() => {
+    const agent = request.agent(app);
+    const user = await agent
+      .post('/api/v1/auth/signup')
+      .send({
+        email: 'test@test.com',
+        password: 'password',
+        profilePhotoURL: 'profile.jpg'
+      });
+
+    const gram = await agent
+      .post('/api/v1/post_grams')
+      .send({ 
+        userId: user.id, 
+        photoURL: 'photo.jpg',
+        caption: 'caption',
+        tags:
+         [ 
+           'tag',
+           'tagged',
+           'tagger'
+         ]
+      });
+
+    const res = await agent
+      .delete(`/api/v1/post_grams/${gram.body.id}`);
+      
+    expect(res.body).toEqual({
+      id: expect.any(String),
+      userId: user.body.id, 
+      photoURL: 'photo.jpg',
+      caption: 'caption', 
+      tags:
+         [
+           'tag',
+           'tagged',
+           'tagger'
+         ]
+    });
+  });
+
+  it('gets top 10 commented on PostGrams via GET', async() => {
+    const agent = request.agent(app);
+    const user = await agent
+      .post('/api/v1/auth/signup')
+      .send({
+        email: 'test@test.com',
+        password: 'password',
+        profilePhotoURL: 'profile.jpg'
+      });
+    const grams = await agent
+      .post('/api/v1/post_grams')
+      .send(
+        { 
+          userId: user.id, 
+          photoURL: 'photo1.jpg',
+          caption: 'caption',
+          tags:
+          [ 
+            'tag',
+            'tagged',
+            'tagger'
+          ],
+        });
+
+    const comments = await agent
+      .post('/api/v1/comments')
+      .send(
+        {
+          comment: 'hello world',
+          commentBy: user.id,
+          post: grams.body.id
+        });
+
+    const res = await agent
+      .get('/api/v1/post_grams');
+      
+    expect(res.body).toEqual([{
+      id: expect.any(String),
+      userId: user.body.id, 
+      photoURL: 'photo1.jpg',
+      caption: 'caption',
+      tags:
+         [ 
+           'tag',
+           'tagged',
+           'tagger'
+         ]
+    }]);
   });
 });
