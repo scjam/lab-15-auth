@@ -4,8 +4,21 @@ const request = require('supertest');
 const app = require('../lib/app');
 
 describe('post gram routes', () => {
-  beforeEach(() => {
-    return pool.query(fs.readFileSync('./sql/setup.sql', 'utf-8'));
+  let agent;
+  let user;
+
+  beforeEach(async() => {
+    await pool.query(fs.readFileSync('./sql/setup.sql', 'utf-8'));
+
+    agent = request.agent(app);
+
+    user = await agent
+      .post('/api/v1/auth/signup')
+      .send({
+        email: 'test@test.com',
+        password: 'password',
+        profilePhotoURL: 'profile.jpg'
+      });
   });
   
   afterAll(() => {
@@ -13,14 +26,6 @@ describe('post gram routes', () => {
   });
 
   it('creates a PostGram via POST', async() => {
-    const agent = request.agent(app);
-    const user = await agent
-      .post('/api/v1/auth/signup')
-      .send({
-        email: 'test@test.com',
-        password: 'password',
-        profilePhotoURL: 'profile.jpg'
-      });
     const res = await agent
       .post('/api/v1/post_grams')
       .send({ 
@@ -50,14 +55,6 @@ describe('post gram routes', () => {
   });
 
   it('gets all PostGrams via GET', async() => {
-    const agent = request.agent(app);
-    const user = await agent
-      .post('/api/v1/auth/signup')
-      .send({
-        email: 'test@test.com',
-        password: 'password',
-        profilePhotoURL: 'profile.jpg'
-      });
     const gram = await agent
       .post('/api/v1/post_grams')
       .send({ 
@@ -90,15 +87,6 @@ describe('post gram routes', () => {
   });
 
   it('gets all PostGrams by id and associated comments via GET', async() => {
-    const agent = request.agent(app);
-    const user = await agent
-      .post('/api/v1/auth/signup')
-      .send({
-        email: 'test@test.com',
-        password: 'password',
-        profilePhotoURL: 'profile.jpg'
-      });
-
     const gram = await agent
       .post('/api/v1/post_grams')
       .send({ 
@@ -132,15 +120,6 @@ describe('post gram routes', () => {
   });
 
   it('updates a posts caption, only allowing you to do so if you have authorization', async() => {
-    const agent = request.agent(app);
-    const user = await agent
-      .post('/api/v1/auth/signup')
-      .send({
-        email: 'test@test.com',
-        password: 'password',
-        profilePhotoURL: 'profile.jpg'
-      });
-
     let gram = await agent
       .post('/api/v1/post_grams')
       .send({ 
@@ -180,15 +159,6 @@ describe('post gram routes', () => {
   });
 
   it('deletes a post, only allowing you to do so if you have authorization', async() => {
-    const agent = request.agent(app);
-    const user = await agent
-      .post('/api/v1/auth/signup')
-      .send({
-        email: 'test@test.com',
-        password: 'password',
-        profilePhotoURL: 'profile.jpg'
-      });
-
     const gram = await agent
       .post('/api/v1/post_grams')
       .send({ 
@@ -221,14 +191,6 @@ describe('post gram routes', () => {
   });
 
   it('gets top 10 commented on PostGrams via GET', async() => {
-    const agent = request.agent(app);
-    const user = await agent
-      .post('/api/v1/auth/signup')
-      .send({
-        email: 'test@test.com',
-        password: 'password',
-        profilePhotoURL: 'profile.jpg'
-      });
     const grams = await agent
       .post('/api/v1/post_grams')
       .send(
