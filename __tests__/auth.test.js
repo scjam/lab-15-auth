@@ -5,8 +5,18 @@ const app = require('../lib/app');
 const UserService = require('../lib/services/UserService');
 
 describe('auth routes', () => {
-  beforeEach(() => {
-    return pool.query(fs.readFileSync('./sql/setup.sql', 'utf-8'));
+  let agent;
+  let user;
+
+  beforeEach(async() => {
+    await pool.query(fs.readFileSync('./sql/setup.sql', 'utf-8'));
+
+    agent = await request.agent(app);
+    user = await UserService.create({
+      email: 'test@test.com',
+      password: 'password',
+      profilePhotoURL: 'profile.jpg'
+    });
   });
 
   afterAll(() => {
@@ -31,12 +41,6 @@ describe('auth routes', () => {
   });
 
   it('allows the user to login via POST', async() => {
-    const user = await UserService.create({
-      email: 'test@test.com',
-      password: 'password',
-      profilePhotoURL: 'profile.jpg'
-    });
-
     const res = await request(app)
       .post('/api/v1/auth/login')
       .send({
@@ -52,13 +56,6 @@ describe('auth routes', () => {
   });
 
   it('verifies a user is logged in', async() => {
-    const agent = request.agent(app);
-    const user = await UserService.create({
-      email: 'test@test.com',
-      password: 'password',
-      profilePhotoURL: 'profile.jpg'
-    });
-
     await agent
       .post('/api/v1/auth/login')
       .send({
