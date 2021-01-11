@@ -2,26 +2,26 @@ const fs = require('fs');
 const pool = require('../lib/utils/pool');
 const request = require('supertest');
 const app = require('../lib/app');
-const UserService = require('../lib/services/UserService');
 
 describe('comments routes', () => {
-  beforeEach(() => {
-    return pool.query(fs.readFileSync('./sql/setup.sql', 'utf-8'));
-  });
-  afterAll(() => {
-    pool.end();
-  });
+  let user;
+  let gram;
+  let agent;
+  let comment;
 
-  it('creates a comment via POST', async() => {
-    const agent = request.agent(app);
-    const user = await agent
+  beforeEach(async() => {
+    await pool.query(fs.readFileSync('./sql/setup.sql', 'utf-8'));
+
+    agent = await request.agent(app);
+    user = await agent
       .post('/api/v1/auth/signup')
       .send({
         email: 'test@test.com',
         password: 'password',
         profilePhotoURL: 'profile.jpg'
       });
-    const gram = await agent
+      
+    gram = await agent
       .post('/api/v1/post_grams')
       .send({ 
         userId: user.id, 
@@ -33,6 +33,21 @@ describe('comments routes', () => {
            'tagger'
          ],
       });
+
+    comment = await agent
+      .post('/api/v1/comments')
+      .send({
+        comment: 'text',
+        commentBy: user.id,
+        post: gram.body.id
+      });
+  });
+  
+  afterAll(() => {
+    pool.end();
+  });
+
+  it('creates a comment via POST', async() => {
     const res = await agent
       .post('/api/v1/comments')
       .send({
@@ -50,33 +65,6 @@ describe('comments routes', () => {
   });
 
   it('deletes a comment via DELETE', async() => {
-    const agent = request.agent(app);
-    const user = await agent
-      .post('/api/v1/auth/signup')
-      .send({
-        email: 'test@test.com',
-        password: 'password',
-        profilePhotoURL: 'profile.jpg'
-      });
-    const gram = await agent
-      .post('/api/v1/post_grams')
-      .send({ 
-        userId: user.id, 
-        photoURL: 'photo.jpg', 
-        tags:
-         [ 
-           'tag',
-           'tagged',
-           'tagger'
-         ],
-      });
-    const comment = await agent
-      .post('/api/v1/comments')
-      .send({
-        comment: 'text',
-        commentBy: user.id,
-        post: gram.body.id
-      });
     
     const res = await agent
       .delete(`/api/v1/comments/${comment.body.id}`);

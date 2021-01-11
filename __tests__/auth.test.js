@@ -4,9 +4,19 @@ const request = require('supertest');
 const app = require('../lib/app');
 const UserService = require('../lib/services/UserService');
 
-describe('lab-15-auth routes', () => {
-  beforeEach(() => {
-    return pool.query(fs.readFileSync('./sql/setup.sql', 'utf-8'));
+describe('auth routes', () => {
+  let agent;
+  let user;
+
+  beforeEach(async() => {
+    await pool.query(fs.readFileSync('./sql/setup.sql', 'utf-8'));
+
+    agent = await request.agent(app);
+    user = await UserService.create({
+      email: 'test@test.com',
+      password: 'password',
+      profilePhotoURL: 'profile.jpg'
+    });
   });
 
   afterAll(() => {
@@ -30,13 +40,7 @@ describe('lab-15-auth routes', () => {
       });
   });
 
-  it('allows the user to login via post', async() => {
-    const user = await UserService.create({
-      email: 'test@test.com',
-      password: 'password',
-      profilePhotoURL: 'profile.jpg'
-    });
-
+  it('allows the user to login via POST', async() => {
     const res = await request(app)
       .post('/api/v1/auth/login')
       .send({
@@ -52,13 +56,6 @@ describe('lab-15-auth routes', () => {
   });
 
   it('verifies a user is logged in', async() => {
-    const agent = request.agent(app);
-    const user = await UserService.create({
-      email: 'test@test.com',
-      password: 'password',
-      profilePhotoURL: 'profile.jpg'
-    });
-
     await agent
       .post('/api/v1/auth/login')
       .send({
